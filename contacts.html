@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ и контакты — Сахарный цех</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">🎂 САХАРНЫЙ ЦЕХ</div>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="cakes.html">Каталог</a>
+            <a href="builder.html">Конструктор</a>
+            <a href="fillings.html">Начинки</a>
+            <a href="contacts.html" class="active">Заказ</a>
+        </nav>
+    </header>
+
+    <main style="padding: 20px; max-width: 600px; margin: 0 auto;">
+        <h1>Оформление заказа</h1>
+        
+        <form id="orderForm">
+            <p>
+                <label for="name">Ваше имя (2–60 символов):</label><br>
+                <input type="text" id="name" required minlength="2" maxlength="60" style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label for="phone">Телефон (в формате +7XXXXXXXXXX):</label><br>
+                <input type="tel" id="phone" placeholder="+79001234567" required pattern="^\+7\d{10}\$" style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label for="email">E-mail (необязательно):</label><br>
+                <input type="email" id="email" style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label for="cake_type">Выберите торт:</label><br>
+                <select id="cake_type" required style="width: 100%; padding: 8px;">
+                    <option value="CUSTOM">Индивидуальный дизайн (CUSTOM)</option>
+                    <option value="C-01">Новогодний торт C-01</option>
+                    <option value="C-02">Детский торт C-02</option>
+                </select>
+            </p>
+
+            <p>
+                <label for="weight_kg">Вес торта (кг, шаг 0.5):</label><br>
+                <input type="number" id="weight_kg" min="1.5" max="10" step="0.5" value="1.5" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label for="event_date">Дата выполнения (минимум за 3 дня):</label><br>
+                <input type="date" id="event_date" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <input type="checkbox" id="privacy" required>
+                <label for="privacy">Я согласен на <a href="privacy.html" target="_blank">обработку персональных данных</a></label>
+            </p>
+
+            <button type="submit" data-event="cta_click" data-param-button-name="submit_order" data-param-page-section="contacts_form" style="padding: 10px 20px; cursor: pointer;">
+                Отправить заявку
+            </button>
+        </form>
+    </main>
+
+    <script src="js/analytics.js"></script>
+    <script src="js/form.js"></script>
+    <script>
+        // Динамическая установка минимальной даты: сегодня + 3 дня (Раздел 3.3)
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('event_date');
+            if (dateInput) {
+                const targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() + 3);
+                
+                const yyyy = targetDate.getFullYear();
+                const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(targetDate.getDate()).padStart(2, '0');
+                
+                dateInput.min = `${yyyy}-${mm}-${dd}`;
+            }
+        });
+    </script>
+</body>
+</html>
