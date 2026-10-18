@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Заказ и контакты — Сахарный цех</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Оформление заказа — Сахарный цех</title>
 </head>
-<body>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
 
-        <header>
-        <div class="logo">САХАРНЫЙ ЦЕХ</div>
+    <header style="background: #000; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: bold; font-size: 20px;">САХАРНЫЙ ЦЕХ</div>
         <nav>
-            <a href="index.html">Главная</a>
-            <a href="cakes.html">Каталог</a>
-            <a href="builder.html">Конструктор</a>
-            <a href="fillings.html">Начинки</a>
-            <a href="contacts.html" class="active">Заказ</a>
+            <a href="index.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Главная</a>
+            <a href="cakes.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Каталог</a>
+            <a href="builder.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Конструктор</a>
+            <a href="fillings.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Начинки</a>
+            <a href="contacts.html" style="color: #fff; text-decoration: none; border-bottom: 2px solid #fff;">Заказ</a>
         </nav>
     </header>
 
@@ -25,44 +24,44 @@
         <form id="orderForm">
             <p>
                 <label for="name">Ваше имя (2–60 символов):</label><br>
-                <input type="text" id="name" required minlength="2" maxlength="60" style="width: 100%; padding: 8px;">
+                <input type="text" id="name" name="name" minlength="2" maxlength="60" required style="width: 100%; padding: 8px; margin-top: 5px;">
             </p>
 
             <p>
-                <label for="phone">Телефон (в формате +7XXXXXXXXXX):</label><br>
-                <input type="tel" id="phone" placeholder="+79001234567" required pattern="^\+7\d{10}\$" style="width: 100%; padding: 8px;">
+                <label for="phone">Телефон:</label><br>
+                <input type="tel" id="phone" name="phone" required style="width: 100%; padding: 8px; margin-top: 5px;" placeholder="+79991234567">
             </p>
 
             <p>
                 <label for="email">E-mail (необязательно):</label><br>
-                <input type="email" id="email" style="width: 100%; padding: 8px;">
+                <input type="email" id="email" name="email" style="width: 100%; padding: 8px; margin-top: 5px;">
             </p>
 
             <p>
                 <label for="cake_type">Выберите торт:</label><br>
-                <select id="cake_type" required style="width: 100%; padding: 8px;">
-                    <option value="CUSTOM">Индивидуальный дизайн (CUSTOM)</option>
+                <select id="cake_type" name="cake_type" style="width: 100%; padding: 8px; margin-top: 5px;">
                     <option value="C-01">Новогодний торт C-01</option>
                     <option value="C-02">Детский торт C-02</option>
+                    <option value="CUSTOM">Кастомный торт из конструктора</option>
                 </select>
             </p>
 
             <p>
-                <label for="weight_kg">Вес торта (кг, шаг 0.5):</label><br>
-                <input type="number" id="weight_kg" min="1.5" max="10" step="0.5" value="1.5" required style="width: 100%; padding: 8px;">
+                <label for="weight">Вес торта (кг, шаг 0.5):</label><br>
+                <input type="number" id="weight" name="weight" min="1.5" max="10" step="0.5" value="1.5" style="width: 100%; padding: 8px; margin-top: 5px;">
             </p>
 
             <p>
-                <label for="event_date">Дата выполнения (минимум за 3 дня):</label><br>
-                <input type="date" id="event_date" required style="width: 100%; padding: 8px;">
+                <label for="date">Дата выполнения (минимум за 3 дня):</label><br>
+                <input type="date" id="date" name="date" required style="width: 100%; padding: 8px; margin-top: 5px;">
             </p>
 
             <p>
-                <input type="checkbox" id="privacy" required>
+                <input type="checkbox" id="privacy" required checked>
                 <label for="privacy">Я согласен на <a href="privacy.html" target="_blank">обработку персональных данных</a></label>
             </p>
 
-            <button type="submit" data-event="cta_click" data-param-button-name="submit_order" data-param-page-section="contacts_form" style="padding: 10px 20px; cursor: pointer;">
+            <button type="submit" id="submitBtn" style="padding: 10px 20px; background: #000; color: #fff; border: none; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px;">
                 Отправить заявку
             </button>
         </form>
@@ -71,18 +70,25 @@
     <script src="js/analytics.js"></script>
     <script src="js/form.js"></script>
     <script>
-        // Динамическая установка минимальной даты: сегодня + 3 дня (Раздел 3.3)
+        // Автоматическая подстановка минимальной даты (+3 дня от сегодняшней) по ТЗ
         document.addEventListener('DOMContentLoaded', () => {
-            const dateInput = document.getElementById('event_date');
-            if (dateInput) {
-                const targetDate = new Date();
-                targetDate.setDate(targetDate.getDate() + 3);
-                
-                const yyyy = targetDate.getFullYear();
-                const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-                const dd = String(targetDate.getDate()).padStart(2, '0');
-                
-                dateInput.min = `${yyyy}-${mm}-${dd}`;
+            const dateInput = document.getElementById('date');
+            const today = new Date();
+            today.setDate(today.getDate() + 3);
+            const yyyy = today.getFullYear();
+            let mm = today.getMonth() + 1;
+            let dd = today.getDate();
+            if (mm < 10) mm = '0' + mm;
+            if (dd < 10) dd = '0' + dd;
+            dateInput.min = `${yyyy}-${mm}-${dd}`;
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+
+            // Если пришли из конструктора или калькулятора гостей, подтягиваем сохраненные параметры
+            if(sessionStorage.getItem('built_cake_weight')) {
+                document.getElementById('weight').value = sessionStorage.getItem('built_cake_weight');
+            }
+            if(sessionStorage.getItem('built_cake_type')) {
+                document.getElementById('cake_type').value = 'CUSTOM';
             }
         });
     </script>
