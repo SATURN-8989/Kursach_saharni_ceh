@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Спасибо за заказ — Сахарный цех</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+
+    <header style="background: #000; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: bold; font-size: 20px;">САХАРНЫЙ ЦЕХ</div>
+        <nav>
+            <a href="index.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Главная</a>
+            <a href="cakes.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Каталог</a>
+            <a href="builder.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Конструктор</a>
+            <a href="fillings.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Начинки</a>
+            <a href="contacts.html" style="color: #fff; text-decoration: none;">Заказ</a>
+        </nav>
+    </header>
+
+    <main style="padding: 40px 20px; max-width: 600px; margin: 0 auto; text-align: center;">
+        <h1>Спасибо! Ваш заказ успешно принят</h1>
+        <p>Наш менеджер свяжется с вами в течение 15 минут для подтверждения деталей.</p>
+        
+        <div style="background: #f3f3f3; padding: 15px; margin: 25px 0; font-family: monospace; font-size: 16px; border: 1px dashed #000;">
+            Номер вашей заявки: <span id="reqIdDisplay">Обработка...</span>
+        </div>
+        
+        <p><a href="index.html" style="color: #000; font-weight: bold;">Вернуться на главную</a></p>
+    </main>
+
+    <script src="js/analytics.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestId = urlParams.get('req_id') || sessionStorage.getItem('last_request_id') || 'REQ-UNKNOWN';
+            document.getElementById('reqIdDisplay').textContent = requestId;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расчет количества гостей — Сахарный цех</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+
+    <header style="background: #000; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: bold; font-size: 20px;">САХАРНЫЙ ЦЕХ</div>
+        <nav>
+            <a href="index.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Главная</a>
+            <a href="cakes.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Каталог</a>
+            <a href="builder.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Конструктор</a>
+            <a href="fillings.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Начинки</a>
+            <a href="contacts.html" style="color: #fff; text-decoration: none;">Заказ</a>
+        </nav>
+    </header>
+
+    <main style="padding: 20px; max-width: 600px; margin: 0 auto;">
+        <h1>Калькулятор веса торта по числу гостей</h1>
+        <p>Введите планируемое количество гостей для расчета оптимального веса праздничного торта по стандарту кондитерской.</p>
+        
+        <form id="guestsForm" style="margin-top: 20px;">
+            <p>
+                <label for="guestsCount">Количество гостей:</label><br>
+                <input type="number" id="guestsCount" min="1" max="100" value="10" style="width: 100%; padding: 8px; margin-top: 5px;">
+            </p>
+
+            <div style="background: #f3f3f3; padding: 15px; margin: 20px 0; font-size: 18px; font-weight: bold;">
+                Рекомендуемый вес торта: <span id="calculatedWeight">1.5</span> кг
+            </div>
+
+            <div style="border: 2px dashed #000; padding: 15px; margin-bottom: 20px; background-color: #fafafa;">
+                <p style="margin: 0; font-weight: bold;">Ваш промокод из Instagram:</p>
+                <p id="promoCode" style="font-size: 22px; font-family: monospace; letter-spacing: 2px; margin: 10px 0 0 0; color: #000;">NY2027</p>
+            </div>
+
+            <button type="button" id="proceedToOrder" data-event="cta_click" data-param-button-name="guests_to_order" data-param-page-section="guests_calculator" style="padding: 10px 20px; cursor: pointer; width: 100%; background: #000; color: #fff; border: none; font-weight: bold;">
+                Перейти к оформлению заказа
+            </button>
+        </form>
+    </main>
+
+    <script src="js/analytics.js"></script>
+    <script>
+        const guestsInput = document.getElementById('guestsCount');
+        const weightDisplay = document.getElementById('calculatedWeight');
+        const proceedBtn = document.getElementById('proceedToOrder');
+
+        function calculateWeight() {
+            const guests = parseInt(guestsInput.value) || 0;
+            if (guests <= 0) {
+                weightDisplay.textContent = '1.5';
+                return;
+            }
+            let rawWeight = guests * 0.15;
+            let roundedWeight = Math.ceil(rawWeight * 2) / 2;
+            if (roundedWeight < 1.5) roundedWeight = 1.5;
+            weightDisplay.textContent = roundedWeight.toFixed(1);
+        }
+
+        guestsInput.addEventListener('input', calculateWeight);
+        proceedBtn.addEventListener('click', () => {
+            sessionStorage.setItem('built_cake_weight', weightDisplay.textContent);
+            sessionStorage.setItem('built_cake_type', 'CUSTOM-GUESTS');
+            window.location.href = 'contacts.html';
+        });
+        calculateWeight();
+    </script>
+</body>
+</html>

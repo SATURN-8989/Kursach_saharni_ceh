@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор тортов — Сахарный цех</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+
+    <header style="background: #000; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: bold; font-size: 20px;">САХАРНЫЙ ЦЕХ</div>
+        <nav>
+            <a href="index.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Главная</a>
+            <a href="cakes.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Каталог</a>
+            <a href="builder.html" style="color: #fff; margin-right: 15px; text-decoration: none; border-bottom: 2px solid #fff;">Конструктор</a>
+            <a href="fillings.html" style="color: #fff; margin-right: 15px; text-decoration: none;">Начинки</a>
+            <a href="contacts.html" style="color: #fff; text-decoration: none;">Заказ</a>
+        </nav>
+    </header>
+
+    <main style="padding: 20px; max-width: 600px; margin: 0 auto;">
+        <h1>Конструктор торта</h1>
+        <p>Спроектируйте свой десерт. Двухъярусные конструкции доступны для заказа только при весе от 3 кг.</p>
+        
+        <form id="cakeBuilderForm" style="margin-top: 20px;">
+            <p>
+                <label for="fillingType">Категория начинки:</label><br>
+                <select id="fillingType" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    <option value="classic">Классика (Ваниль, Шоколад, Медовик, Морковный) — 2400 руб/кг</option>
+                    <option value="premium">Премиум (Фисташка-Малина, Манго-Маракуйя) — 2900 руб/кг</option>
+                </select>
+            </p>
+
+            <p>
+                <label for="cakeWeight">Вес торта (кг, шаг 0.5):</label><br>
+                <input type="number" id="cakeWeight" min="1.5" max="10" step="0.5" value="1.5" style="width: 100%; padding: 8px; margin-top: 5px;">
+            </p>
+
+            <p>
+                <label for="cakeTiers">Количество ярусов:</label><br>
+                <select id="cakeTiers" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    <option value="1">1 ярус</option>
+                    <option value="2">2 яруса (+1500 руб к стоимости)</option>
+                </select>
+            </p>
+
+            <p>
+                <label for="decorType">Вариант декора:</label><br>
+                <select id="decorType" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    <option value="none">Без декора (Поздравительная надпись — бесплатно)</option>
+                    <option value="berries">Ягоды (+600 руб)</option>
+                    <option value="figurine">Фигурка (+900 руб)</option>
+                    <option value="photo">Фотопечать (+500 руб)</option>
+                </select>
+            </p>
+
+            <div style="background: #f3f3f3; padding: 15px; margin: 20px 0; font-size: 18px; font-weight: bold;">
+                Предварительная стоимость: <span id="priceDisplay">3600</span> руб
+            </div>
+
+            <button type="button" id="submitToOrder" data-event="cta_click" data-param-button-name="builder_submit" data-param-page-section="builder_page" style="padding: 10px 20px; cursor: pointer; width: 100%; background: #000; color: #fff; border: none; font-weight: bold;">
+                Перейти к оформлению заказа
+            </button>
+        </form>
+    </main>
+
+    <script src="js/analytics.js"></script>
+    <script>
+        const fillingSelect = document.getElementById('fillingType');
+        const weightInput = document.getElementById('cakeWeight');
+        const tiersSelect = document.getElementById('cakeTiers');
+        const decorSelect = document.getElementById('decorType');
+        const priceDisplay = document.getElementById('priceDisplay');
+        const submitBtn = document.getElementById('submitToOrder');
+
+        function updatePrice() {
+            let weight = parseFloat(weightInput.value) || 1.5;
+            let tiers = parseInt(tiersSelect.value) || 1;
+            let filling = fillingSelect.value;
+            let decor = decorSelect.value;
+
+            if (tiers === 2 && weight < 3) {
+                alert('Двухъярусные торты изготавливаются только при весе от 3 кг. Количество ярусов изменено на 1.');
+                tiersSelect.value = "1";
+                tiers = 1;
+            }
+
+            let basePricePerKg = filling === 'premium' ? 2900 : 2400;
+            let currentPrice = weight * basePricePerKg;
+
+            if (tiers === 2) currentPrice += 1500;
+            if (decor === 'berries') currentPrice += 600;
+            else if (decor === 'figurine') currentPrice += 900;
+            else if (decor === 'photo') currentPrice += 500;
+
+            priceDisplay.textContent = currentPrice;
+        }
+
+        [fillingSelect, weightInput, tiersSelect, decorSelect].forEach(element => {
+            element.addEventListener('change', updatePrice);
+        });
+        weightInput.addEventListener('input', updatePrice);
+
+        submitBtn.addEventListener('click', () => {
+            sessionStorage.setItem('built_cake_type', `CUSTOM-${fillingSelect.value.toUpperCase()}-${tiersSelect.value}TIER`);
+            sessionStorage.setItem('built_cake_weight', weightInput.value);
+            window.location.href = 'contacts.html';
+        });
+
+        updatePrice();
+    </script>
+</body>
+</html>
