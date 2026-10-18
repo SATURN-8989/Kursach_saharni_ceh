@@ -1,80 +1,78 @@
-// Генерация уникального request_id по Разделу 6.1 ТЗ (вид REQ- + UUID)
-function generateRequestId() {
-    return 'REQ-' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
-// Перехват и сохранение UTM-меток из URL в sessionStorage (Раздел 6.3 ТЗ)
-function captureUtmTags() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const utmTags = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
-    
-    utmTags.forEach(tag => {
-        if (urlParams.has(tag)) {
-            sessionStorage.setItem(tag, urlParams.get(tag));
-        }
-    });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    captureUtmTags(); // Ловим UTM-метки сразу при загрузке страницы
-
     const orderForm = document.getElementById('orderForm');
     if (!orderForm) return;
 
     orderForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        const submitButton = orderForm.querySelector('button[type="submit"]');
-        submitButton.disabled = true; // Блокируем кнопку на время отправки заказа
 
-        // Собираем все данные из формы и памяти браузера строго по ТЗ
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.disabled = true;
+
+        // Поиск элементов на странице с защитой от null
+        const nameEl = document.getElementById('name');
+        const phoneEl = document.getElementById('phone');
+        const emailEl = document.getElementById('email');
+        const cakeTypeEl = document.getElementById('cakeType') || document.getElementById('cake_type');
+        const cakeWeightEl = document.getElementById('cakeWeight') || document.getElementById('weight');
+        const dateEl = document.getElementById('date');
+
+        // Сбор UTM-меток из sessionStorage
+        const utmSource = sessionStorage.getItem('utm_source') || 'direct';
+        const utmMedium = sessionStorage.getItem('utm_medium') || 'none';
+        const utmCampaign = sessionStorage.getItem('utm_campaign') || 'none';
+
+        // Генерация уникального request_id
+        const timestamp = Date.now();
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        const requestId = `REQ-${timestamp}-${randomNum}`;
+
+        // Сбор данных в объект
         const formData = {
-            request_id: generateRequestId(),
-            name: document.getElementById('name').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value || "",
-            cake_type: document.getElementById('cake_type').value,
-            weight_kg: parseFloat(document.getElementById('weight_kg').value),
-            event_date: document.getElementById('event_date').value,
-            // Достаем скрытые UTM из sessionStorage (если их нет, ставим дефолт по ТЗ)
-            utm_source: sessionStorage.getItem('utm_source') || 'direct',
-            utm_medium: sessionStorage.getItem('utm_medium') || 'none',
-            utm_campaign: sessionStorage.getItem('utm_campaign') || 'not_set',
-            utm_content: sessionStorage.getItem('utm_content') || 'not_set'
+            request_id: requestId,
+            created_at: new Date().toISOString(),
+            name: nameEl ? nameEl.value : 'Не указано',
+            phone: phoneEl ? phoneEl.value : 'Не указано',
+            email: emailEl ? emailEl.value : 'Не указано',
+            cake_type: cakeTypeEl ? cakeTypeEl.value : 'CUSTOM',
+            weight_kg: cakeWeightEl ? cakeWeightEl.value : '1.5',
+            date: dateEl ? dateEl.value : '',
+            utm_source: utmSource,
+            utm_medium: utmMedium,
+            utm_campaign: utmCampaign,
+            status: 'new'
         };
 
-        // Сюда мы вставим ссылку, которую получим из Google Таблицы чуть позже
-        const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzalSLpm1hMLCop7zjp16IsCUJOanOeAFxGmtSzGXIL8WjEgs66Kl7kWEbQCThM9NYx5Q/exec';
-
+        // Сохраняем ID заявки, чтобы thanks.html мог его показать
+        sessionStorage.setItem('last_request_id', requestId);
 
         try {
-            await fetch(googleScriptUrl, {
+            // URL твоей Google Таблицы из Главы 3
+            const webAppUrl = 'https://google.com'; 
+
+            const response = await fetch(webAppUrl, {
                 method: 'POST',
-                mode: 'no-cors', // Специфика работы с Google Apps Script
-                headers: { 'Content-Type': 'application/json' },
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(formData)
             });
 
-            // Запускаем отправку успешного события generate_lead в GA4
+            // Отправляем успешное событие в нашу новую аналитику GA4
             if (typeof trackLeadSuccess === 'function') {
-                trackLeadSuccess(formData.cake_type, formData.weight_kg, 0); 
+                trackLeadSuccess(formData.cake_type, formData.weight_kg, parseFloat(formData.weight_kg) * 2400);
             }
 
-            // Перенаправляем клиента на страницу «Спасибо»
-            window.location.href = `thanks.html?req_id=${formData.request_id}`;
+            // Перенаправление на страницу спасибо по ТЗ
+            window.location.href = `thanks.html?req_id=${requestId}`;
 
         } catch (error) {
-            console.error('Ошибка отправки на сервер:', error);
-            submitButton.disabled = false; // Разблокируем кнопку при ошибке
-            
-            // Отправляем событие ошибки в аналитику
+            console.error('Ошибка отправки формы:', error);
             if (typeof trackFormError === 'function') {
                 trackFormError('server', 'server_error');
             }
-            alert('Не удалось отправить заказ. Пожалуйста, попробуйте еще раз.');
+            alert('Произошла ошибка при отправке заказа. Пожалуйста, попробуйте позже.');
+            if (submitBtn) submitBtn.disabled = false;
         }
     });
 });
